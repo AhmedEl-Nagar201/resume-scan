@@ -407,6 +407,7 @@ export class OpenRouterAPI {
         ${section === "skills" ? "5. Return a comma-separated list of skills" : ""}
         
         Return only the improved content without any additional text or explanation.
+        Do Not Use Bold or any text formatting, output as .txt not .md
       `
 
       let response
