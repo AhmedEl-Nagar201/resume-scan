@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Navbar } from "@/components/navbar"
 import Link from "next/link"
+import { AuthProvider } from "@/contexts/auth-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -60,28 +61,29 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <ThemeToggle />
-            <Toaster />
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <ThemeToggle />
+              <Toaster />
 
-            {/* Footer */}
-           {/* Fixed footer */}
-        <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-200 py-2 px-4 text-center text-sm text-gray-600">
-          Made with ❤️ by{" "}
-          <Link 
-            href="https://wa.me/201067212579" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary font-medium hover:underline"
-          >
-            Ahmed El Nagar
-          </Link>
-        </footer>
-          </div>
-        </ThemeProvider>
+              {/* Fixed footer */}
+              <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-200 py-2 px-4 text-center text-sm text-gray-600">
+                Made with ❤️ by{" "}
+                <Link
+                  href="https://wa.me/201067212579"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-medium hover:underline"
+                >
+                  Ahmed El Nagar
+                </Link>
+              </footer>
+            </div>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   )

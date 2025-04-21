@@ -20,6 +20,7 @@ import {
   LinkIcon,
   AwardIcon,
   Globe,
+  Loader2,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -35,6 +36,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  saveResume,
+  updateResume,
+  getUserResumes,
+  deleteResume,
+  type ResumeDocument,
+  getMostRecentResume,
+  autoSaveResume,
+} from "@/lib/resume-service"
 
 // Define types for our resume data
 export type Link = {
@@ -225,29 +235,66 @@ export default function ResumeForm() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
 
   // State for saved resumes
-  const [savedResumes, setSavedResumes] = useState<{ name: string; data: ResumeData }[]>([])
+  const [savedResumes, setSavedResumes] = useState<ResumeDocument[]>([])
 
-  // State for current resume name
+  // State for current resume name and ID
   const [currentResumeName, setCurrentResumeName] = useState<string>("")
+  const [currentResumeId, setCurrentResumeId] = useState<string | null>(null)
 
   // State for file input ref
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Load saved resumes from localStorage on component mount
+  // Loading states
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isLoadingResumes, setIsLoadingResumes] = useState(false)
+
+  // Load saved resumes from Firebase on component mount
   useEffect(() => {
-    const loadSavedResumes = () => {
+    const loadSavedResumes = async () => {
+      setIsLoadingResumes(true)
       try {
-        const savedResumesString = localStorage.getItem("savedResumes")
-        if (savedResumesString) {
-          const parsed = JSON.parse(savedResumesString)
-          setSavedResumes(parsed)
+        // Load all resumes for the dropdown
+        const resumes = await getUserResumes()
+        setSavedResumes(resumes)
+
+        // Try to get the most recent resume
+        const mostRecent = await getMostRecentResume()
+
+        if (mostRecent) {
+          setResumeData(mostRecent.data)
+          setCurrentResumeName(mostRecent.name)
+          setCurrentResumeId(mostRecent.id)
+
+          // Also save to localStorage for backup
+          localStorage.setItem("autoSavedResume", JSON.stringify(mostRecent.data))
+          localStorage.setItem("currentResumeId", mostRecent.id)
+          localStorage.setItem("currentResumeName", mostRecent.name)
+        } else {
+          // Try to load auto-saved resume from localStorage as fallback
+          loadAutoSavedResume()
         }
       } catch (error) {
         console.error("Error loading saved resumes:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load saved resumes. Using local data instead.",
+          variant: "destructive",
+        })
+
+        // Load from localStorage as fallback
+        loadAutoSavedResume()
+      } finally {
+        setIsLoadingResumes(false)
       }
     }
 
-    // Try to load auto-saved resume
+    loadSavedResumes()
+  }, [])
+
+  // Load auto-saved resume from localStorage
+  const loadAutoSavedResume = () => {
     try {
       const autoSavedResume = localStorage.getItem("autoSavedResume")
       if (autoSavedResume) {
@@ -279,9 +326,7 @@ export default function ResumeForm() {
       // If there's an error, ensure we still have valid data
       setResumeData(initialResumeData)
     }
-
-    loadSavedResumes()
-  }, [])
+  }
 
   // Auto-save resume data to localStorage when it changes
   useEffect(() => {
@@ -290,6 +335,18 @@ export default function ResumeForm() {
     } catch (error) {
       console.error("Error auto-saving resume:", error)
     }
+  }, [resumeData])
+
+  // Add auto-save functionality when resume data changes
+  useEffect(() => {
+    // Debounce auto-save to avoid too many writes
+    const autoSaveTimer = setTimeout(() => {
+      autoSaveResume(resumeData).catch((error) => {
+        console.error("Error auto-saving resume:", error)
+      })
+    }, 2000) // Wait 2 seconds after changes before saving
+
+    return () => clearTimeout(autoSaveTimer)
   }, [resumeData])
 
   // Handle personal info changes
@@ -510,7 +567,7 @@ export default function ResumeForm() {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    saveResume()
+    saveResumeToFirebase()
   }
 
   // Generate PDF
@@ -545,60 +602,105 @@ export default function ResumeForm() {
     }
   }
 
-  // Save resume to localStorage
-  const saveResume = (name?: string) => {
+  // Save resume to Firebase
+  const saveResumeToFirebase = async (name?: string) => {
     try {
+      setIsSaving(true)
       const resumeName = name || currentResumeName || `Resume_${new Date().toISOString().slice(0, 10)}`
 
-      // Check if we're updating an existing resume or creating a new one
-      const updatedSavedResumes = [...savedResumes]
-      const existingIndex = updatedSavedResumes.findIndex((r) => r.name === resumeName)
-
-      if (existingIndex >= 0) {
-        updatedSavedResumes[existingIndex] = { name: resumeName, data: resumeData }
+      if (currentResumeId) {
+        // Update existing resume
+        await updateResume(currentResumeId, resumeData, resumeName)
       } else {
-        updatedSavedResumes.push({ name: resumeName, data: resumeData })
+        // Create new resume
+        const newResumeId = await saveResume(resumeData, resumeName)
+        setCurrentResumeId(newResumeId)
       }
 
-      setSavedResumes(updatedSavedResumes)
       setCurrentResumeName(resumeName)
 
-      // Save to localStorage
-      localStorage.setItem("savedResumes", JSON.stringify(updatedSavedResumes))
+      // Refresh the list of saved resumes
+      const resumes = await getUserResumes()
+      setSavedResumes(resumes)
 
       toast({
         title: "Resume Saved",
-        description: `Your resume "${resumeName}" has been saved.`,
+        description: `Your resume "${resumeName}" has been saved to Firebase.`,
       })
     } catch (error) {
-      console.error("Error saving resume:", error)
+      console.error("Error saving resume to Firebase:", error)
       toast({
         title: "Error",
-        description: "Failed to save resume. Please try again.",
+        description: `Failed to save resume to Firebase: ${error.message}`,
         variant: "destructive",
       })
+    } finally {
+      setIsSaving(false)
     }
   }
 
-  // Load resume from saved resumes
-  const loadResume = (name: string) => {
+  // Load resume from Firebase
+  const loadResumeFromFirebase = async (resumeDoc: ResumeDocument) => {
     try {
-      const resumeToLoad = savedResumes.find((r) => r.name === name)
-      if (resumeToLoad) {
-        setResumeData(resumeToLoad.data)
-        setCurrentResumeName(name)
-        toast({
-          title: "Resume Loaded",
-          description: `Resume "${name}" has been loaded.`,
-        })
-      }
+      setIsLoading(true)
+      setResumeData(resumeDoc.data)
+      setCurrentResumeName(resumeDoc.name)
+      setCurrentResumeId(resumeDoc.id)
+
+      toast({
+        title: "Resume Loaded",
+        description: `Resume "${resumeDoc.name}" has been loaded.`,
+      })
     } catch (error) {
-      console.error("Error loading resume:", error)
+      console.error("Error loading resume from Firebase:", error)
       toast({
         title: "Error",
-        description: "Failed to load resume. Please try again.",
+        description: `Failed to load resume: ${error.message}`,
         variant: "destructive",
       })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Delete resume from Firebase
+  const deleteResumeFromFirebase = async (resumeId: string) => {
+    try {
+      setIsDeleting(true)
+      await deleteResume(resumeId)
+
+      // Refresh the list of saved resumes
+      const resumes = await getUserResumes()
+      setSavedResumes(resumes)
+
+      // If we deleted the current resume, reset the form
+      if (resumeId === currentResumeId) {
+        if (resumes.length > 0) {
+          // Load the first resume in the list
+          setResumeData(resumes[0].data)
+          setCurrentResumeName(resumes[0].name)
+          setCurrentResumeId(resumes[0].id)
+        } else {
+          // Reset to initial state
+          setResumeData(initialResumeData)
+          setCurrentResumeName("")
+          setCurrentResumeId(null)
+        }
+      }
+
+      toast({
+        title: "Resume Deleted",
+        description: "Your resume has been deleted.",
+      })
+    } catch (error) {
+      console.error("Error deleting resume from Firebase:", error)
+      toast({
+        title: "Error",
+        description: `Failed to delete resume: ${error.message}`,
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -644,6 +746,7 @@ export default function ResumeForm() {
           // Extract name from filename
           const fileName = file.name.replace(".json", "")
           setCurrentResumeName(fileName)
+          setCurrentResumeId(null) // Reset ID since this is a new import
 
           toast({
             title: "Resume Imported",
@@ -721,23 +824,55 @@ export default function ResumeForm() {
                     value={currentResumeName}
                     onChange={(e) => setCurrentResumeName(e.target.value)}
                   />
-                  <Button onClick={() => saveResume(currentResumeName)}>Save</Button>
+                  <Button onClick={() => saveResumeToFirebase(currentResumeName)} disabled={isSaving}>
+                    {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                    Save
+                  </Button>
                 </div>
 
-                {savedResumes.length > 0 && (
+                {isLoadingResumes ? (
+                  <div className="flex justify-center p-4">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : savedResumes.length > 0 ? (
                   <div className="space-y-2">
                     <Label>Saved Resumes</Label>
                     <div className="max-h-40 overflow-y-auto space-y-2">
-                      {savedResumes.map((resume, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 border rounded">
+                      {savedResumes.map((resume) => (
+                        <div key={resume.id} className="flex items-center justify-between p-2 border rounded">
                           <span>{resume.name}</span>
-                          <Button variant="ghost" size="sm" onClick={() => loadResume(resume.name)}>
-                            Load
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => loadResumeFromFirebase(resume)}
+                              disabled={isLoading}
+                            >
+                              {isLoading && currentResumeId === resume.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : null}
+                              Load
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteResumeFromFirebase(resume.id)}
+                              disabled={isDeleting}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              {isDeleting && currentResumeId === resume.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
+                ) : (
+                  <p className="text-center text-muted-foreground">No saved resumes found.</p>
                 )}
 
                 <div className="flex flex-col gap-2">
@@ -1190,9 +1325,18 @@ export default function ResumeForm() {
 
           {/* Submit Button */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button type="submit" className="w-full sm:w-auto" size="lg">
-              <Save className="h-5 w-5 mr-2" />
-              Save Resume
+            <Button type="submit" className="w-full sm:w-auto" size="lg" disabled={isSaving}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-5 w-5 mr-2" />
+                  Save Resume
+                </>
+              )}
             </Button>
           </div>
         </form>
@@ -1205,7 +1349,7 @@ export default function ResumeForm() {
             {isGeneratingPDF ? "Generating PDF..." : "Export as PDF"}
           </Button>
         </div>
-        <div className="bg-gray-100 p-4 rounded-lg">
+        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
           <ResumePreview ref={resumeRef} data={resumeDataForPreview} />
         </div>
       </TabsContent>
