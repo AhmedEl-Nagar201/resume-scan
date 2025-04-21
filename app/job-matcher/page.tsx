@@ -124,7 +124,7 @@ export default function JobMatcher() {
       const result = await analyzeJobMatch(parsedResumeData, jobDescription)
 
       // Check if the result indicates an error
-      if (result.overallMatch === 0 && result.missingSkills.includes("Error analyzing resume")) {
+      if (result.overallMatch === 0 && result.missingSkills.some((skill) => skill.includes("Error analyzing resume"))) {
         setAnalysisError("There was an error analyzing your resume. Please try again later.")
         toast({
           title: "Analysis Failed",
@@ -259,23 +259,15 @@ export default function JobMatcher() {
   if (hasApiKey === false) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Job Match Analyzer</h1>
-          <Link href="/">
-            <Button variant="outline">
-              <FileText className="mr-2 h-4 w-4" />
-              Back to Resume Builder
-            </Button>
-          </Link>
-        </div>
+        <h1 className="text-3xl font-bold mb-8">Job Match Analyzer</h1>
 
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900">
           <CardHeader>
-            <CardTitle className="flex items-center text-red-700">
+            <CardTitle className="flex items-center text-red-700 dark:text-red-400">
               <AlertTriangle className="mr-2 h-5 w-5" />
               API Key Missing
             </CardTitle>
-            <CardDescription className="text-red-600">
+            <CardDescription className="text-red-600 dark:text-red-400">
               The OpenRouter API key is not set. This feature requires an API key to function.
             </CardDescription>
           </CardHeader>
@@ -288,7 +280,7 @@ export default function JobMatcher() {
                 Sign up for an account at{" "}
                 <a
                   href="https://openrouter.ai"
-                  className="text-blue-600 underline"
+                  className="text-blue-600 dark:text-blue-400 underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -315,15 +307,7 @@ export default function JobMatcher() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Job Match Analyzer</h1>
-        <Link href="/">
-          <Button variant="outline">
-            <FileText className="mr-2 h-4 w-4" />
-            Back to Resume Builder
-          </Button>
-        </Link>
-      </div>
+      <h1 className="text-3xl font-bold mb-8">Job Match Analyzer</h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -370,7 +354,7 @@ export default function JobMatcher() {
           </Card>
 
           {analysisError && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg text-red-700 dark:text-red-400">
               <h3 className="text-lg font-semibold flex items-center">
                 <XCircle className="mr-2 h-5 w-5" />
                 Analysis Error
@@ -408,13 +392,13 @@ export default function JobMatcher() {
                     <div className="flex flex-wrap gap-2">
                       {matchResult.missingSkills.length > 0 ? (
                         matchResult.missingSkills.map((skill, index) => (
-                          <Badge key={index} variant="outline" className="bg-red-50">
+                          <Badge key={index} variant="outline" className="bg-red-50 dark:bg-red-950/20">
                             <XCircle className="mr-1 h-3 w-3 text-red-500" />
                             {skill}
                           </Badge>
                         ))
                       ) : (
-                        <p className="text-sm text-green-600">No missing skills detected!</p>
+                        <p className="text-sm text-green-600 dark:text-green-400">No missing skills detected!</p>
                       )}
                     </div>
                   </div>
@@ -428,13 +412,13 @@ export default function JobMatcher() {
                       <div className="flex flex-wrap gap-2">
                         {matchResult.relevantExperience.has.length > 0 ? (
                           matchResult.relevantExperience.has.map((exp, index) => (
-                            <Badge key={index} variant="outline" className="bg-green-50">
+                            <Badge key={index} variant="outline" className="bg-green-50 dark:bg-green-950/20">
                               <CheckCircle className="mr-1 h-3 w-3 text-green-500" />
                               {exp}
                             </Badge>
                           ))
                         ) : (
-                          <p className="text-sm text-red-600">No relevant experience detected.</p>
+                          <p className="text-sm text-red-600 dark:text-red-400">No relevant experience detected.</p>
                         )}
                       </div>
                     </div>
@@ -443,13 +427,13 @@ export default function JobMatcher() {
                       <div className="flex flex-wrap gap-2">
                         {matchResult.relevantExperience.missing.length > 0 ? (
                           matchResult.relevantExperience.missing.map((exp, index) => (
-                            <Badge key={index} variant="outline" className="bg-red-50">
+                            <Badge key={index} variant="outline" className="bg-red-50 dark:bg-red-950/20">
                               <XCircle className="mr-1 h-3 w-3 text-red-500" />
                               {exp}
                             </Badge>
                           ))
                         ) : (
-                          <p className="text-sm text-green-600">No missing experience detected!</p>
+                          <p className="text-sm text-green-600 dark:text-green-400">No missing experience detected!</p>
                         )}
                       </div>
                     </div>
@@ -467,11 +451,13 @@ export default function JobMatcher() {
                         <CardContent className="py-2 space-y-2">
                           <div>
                             <h4 className="text-sm font-medium">Current</h4>
-                            <p className="text-sm p-2 bg-gray-50 rounded">{suggestion.current}</p>
+                            <p className="text-sm p-2 bg-gray-50 dark:bg-gray-900 rounded">{suggestion.current}</p>
                           </div>
                           <div>
                             <h4 className="text-sm font-medium">Improved</h4>
-                            <p className="text-sm p-2 bg-green-50 rounded">{suggestion.improved}</p>
+                            <p className="text-sm p-2 bg-green-50 dark:bg-green-950/20 rounded">
+                              {suggestion.improved}
+                            </p>
                           </div>
                         </CardContent>
                       </Card>
@@ -501,7 +487,7 @@ export default function JobMatcher() {
           )}
 
           {improvementError && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg text-red-700 dark:text-red-400">
               <h3 className="text-lg font-semibold flex items-center">
                 <XCircle className="mr-2 h-5 w-5" />
                 Improvement Error
@@ -522,8 +508,8 @@ export default function JobMatcher() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <h3 className="text-lg font-semibold flex items-center text-green-700">
+                <div className="p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-lg">
+                  <h3 className="text-lg font-semibold flex items-center text-green-700 dark:text-green-400">
                     <CheckCircle className="mr-2 h-5 w-5" />
                     Resume Updated Successfully
                   </h3>
