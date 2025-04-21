@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Navbar } from "@/components/navbar"
-import { MobileActionButton } from "@/components/mobile-action-button"
 import Link from "next/link"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -65,7 +64,6 @@ export default function RootLayout({
           <div className="min-h-screen flex flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
-            <MobileActionButton />
             <ThemeToggle />
             <Toaster />
 
