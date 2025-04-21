@@ -21,7 +21,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
             <FileText className="h-6 w-6" />
-            <span className="hidden font-bold sm:inline-block text-xl">Resume Scan</span>
+            <span className="font-bold text-xl">Resume Scan</span>
           </Link>
         </div>
 
@@ -32,6 +32,15 @@ export function Navbar() {
             className={cn(
               "text-sm font-medium transition-colors hover:text-primary",
               pathname === "/" ? "text-foreground" : "text-muted-foreground",
+            )}
+          >
+            Home
+          </Link>
+          <Link
+            href="/resume-builder"
+            className={cn(
+              "text-sm font-medium transition-colors hover:text-primary",
+              pathname === "/resume-builder" ? "text-foreground" : "text-muted-foreground",
             )}
           >
             Resume Builder
@@ -71,6 +80,16 @@ export function Navbar() {
               )}
               onClick={() => setIsMenuOpen(false)}
             >
+              Home
+            </Link>
+            <Link
+              href="/resume-builder"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary p-2 rounded-md",
+                pathname === "/resume-builder" ? "bg-muted" : "",
+              )}
+              onClick={() => setIsMenuOpen(false)}
+            >
               Resume Builder
             </Link>
             <Link
@@ -82,12 +101,6 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(false)}
             >
               Job Matcher
-            </Link>
-            <Link href="/job-matcher" onClick={() => setIsMenuOpen(false)}>
-              <Button size="sm" className="w-full">
-                <Briefcase className="mr-2 h-4 w-4" />
-                Analyze Resume
-              </Button>
             </Link>
           </nav>
         </div>
