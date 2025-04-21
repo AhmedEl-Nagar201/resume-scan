@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/contexts/auth-context"
 import { Loader2, LogIn, AlertTriangle } from "lucide-react"
-import FirebaseConfigChecker from "@/components/firebase-config-checker"
 import { Separator } from "@/components/ui/separator"
 
 export default function LoginPage() {
@@ -114,7 +113,6 @@ export default function LoginPage() {
   return (
     <div className="container flex items-center justify-center min-h-[80vh] py-8">
       <div className="w-full max-w-md">
-        <FirebaseConfigChecker />
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
