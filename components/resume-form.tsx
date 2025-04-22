@@ -1,8 +1,12 @@
 "use client"
 
+import Link from "next/link"
+
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import type { LinkProps } from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -46,7 +50,6 @@ import {
   getMostRecentResume,
   autoSaveResume,
 } from "@/lib/resume-service"
-import Router from "next/navigation"
 
 // Define types for our resume data
 export type ResumeLink = {
@@ -223,7 +226,11 @@ function LinksEditor({ links, onChange, addLinkLabel = "Add Link" }: LinksEditor
   )
 }
 
+export interface Link
+  extends React.ForwardRefExoticComponent<Omit<LinkProps, "ref"> & React.RefAttributes<HTMLAnchorElement>> {}
+
 export default function ResumeForm() {
+  const router = useRouter()
   // State for all resume data
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData)
 
@@ -728,6 +735,7 @@ export default function ResumeForm() {
       toast({
         title: "Error",
         description: "Failed to export resume. Please try again.",
+        variant: "destructive",
       })
     }
   }
@@ -768,6 +776,7 @@ export default function ResumeForm() {
       toast({
         title: "Error",
         description: "Failed to import resume. Please try again.",
+        variant: "destructive",
       })
     }
   }
@@ -1338,12 +1347,12 @@ export default function ResumeForm() {
                 </>
               )}
             </Button>
-            <Router.Link href="/job-matcher">
+            <Link href="/job-matcher">
               <Button type="button" variant="outline" className="w-full sm:w-auto" size="lg">
                 <Briefcase className="h-5 w-5 mr-2" />
                 Analyze Resume
               </Button>
-            </Router.Link>
+            </Link>
           </div>
         </form>
       </TabsContent>
