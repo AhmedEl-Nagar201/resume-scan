@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { FileText, Briefcase, CheckCircle, ArrowRight, Star, LayoutDashboard } from "lucide-react"
+import { FileText, Briefcase, CheckCircle, ArrowRight, Star } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -26,10 +26,10 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/job-matcher">
+              <Link href="/resume-builder">
                 <Button size="lg" className="h-12">
-                  <Briefcase className="mr-2 h-5 w-5" />
-                  Analyze Resume
+                  <FileText className="mr-2 h-5 w-5" />
+                  Build Resume
                 </Button>
               </Link>
               <Link href="#features">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import AdminProtectedRoute from "@/components/admin-protected-route"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,8 +34,19 @@ import {
   type ResumeDocument,
 } from "@/lib/resume-service"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2, MoreHorizontal, Search, Trash2, FileText, Download, Shield, ShieldOff } from "lucide-react"
+import {
+  Loader2,
+  MoreHorizontal,
+  Search,
+  Trash2,
+  FileText,
+  Download,
+  Shield,
+  ShieldOff,
+  MessageSquare,
+} from "lucide-react"
 import { format } from "date-fns"
+import Link from "next/link"
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
@@ -237,7 +248,56 @@ export default function AdminDashboard() {
     <AdminProtectedRoute>
       <div className="container py-8">
         <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-muted-foreground mb-8">Manage users and resumes</p>
+        <p className="text-muted-foreground mb-4">Manage users, resumes, and application settings</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Users</CardTitle>
+              <CardDescription>Manage user accounts</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                View, edit, and manage user accounts and permissions.
+              </p>
+              <Button onClick={() => setActiveTab("users")} className="w-full">
+                Manage Users
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Resumes</CardTitle>
+              <CardDescription>Manage user resumes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">View, export, and delete user resumes.</p>
+              <Button onClick={() => setActiveTab("resumes")} className="w-full">
+                Manage Resumes
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">AI Prompts</CardTitle>
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">Manage</div>
+              <p className="text-xs text-muted-foreground">Configure AI prompts used throughout the application</p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/admin/prompts" className="w-full">
+                <Button className="w-full">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Manage Prompts
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
 
         <div className="mb-6">
           <div className="relative">

@@ -1,4 +1,5 @@
 import type { ResumeData } from "@/components/resume-form"
+import { getPromptById } from "./prompt-service"
 
 // Define the OpenRouter API URL
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -102,42 +103,13 @@ export class OpenRouterAPI {
       // Prepare resume data for analysis
       const resumeText = this.prepareResumeText(resumeData)
 
-      // Create the analysis prompt
-      const analysisPrompt = `
-        You are an expert resume analyst and career coach. You need to analyze how well a resume matches a job description.
-        
-        RESUME:
-        ${resumeText}
-        
-        JOB DESCRIPTION:
-        ${jobDescription}
-        
-        Analyze the match between the resume and job description. Provide the following:
-        1. Overall match percentage (0-100)
-        2. List of skills mentioned in the job description that are missing from the resume
-        3. Relevant experience the candidate has vs. what's missing
-        4. Specific suggestions for improving sections of the resume to better match the job
-        
-        Format your response as a JSON object with the following structure:
-        {
-          "overallMatch": number,
-          "missingSkills": string[],
-          "relevantExperience": {
-            "has": string[],
-            "missing": string[]
-          },
-          "improvementSuggestions": [
-            {
-              "section": string,
-              "current": string,
-              "improved": string
-            }
-          ]
-        }
+      // Get the analysis prompt from the database
+      const promptTemplate = await this.getPromptTemplate("analyze-job-match")
 
-        IMPORTANT: Your response must be valid JSON. Do not include any text before or after the JSON object.
-        Do not include markdown formatting or code blocks. Just return the raw JSON object.
-      `
+      // Replace variables in the prompt template
+      const analysisPrompt = promptTemplate
+        .replace("{resumeText}", resumeText)
+        .replace("{jobDescription}", jobDescription)
 
       // Call OpenRouter API to analyze the match
       let response
@@ -274,26 +246,24 @@ export class OpenRouterAPI {
     matchResult: MatchResult,
   ): Promise<string[]> {
     try {
-      const analysisPrompt = `
-        You are an expert resume analyst. Based on the job description and match analysis, identify which sections of the resume need improvement.
-        
-        JOB DESCRIPTION:
-        ${jobDescription}
-        
-        MATCH ANALYSIS:
-        ${JSON.stringify(matchResult, null, 2)}
-        
-        RESUME SECTIONS:
-        - summary: The professional summary
-        - skills: The skills section
-        ${resumeData.experience.map((exp) => `- experience-${exp.id}: ${exp.position} at ${exp.company}`).join("\n")}
-        ${resumeData.education.map((edu) => `- education-${edu.id}: ${edu.degree} from ${edu.institution}`).join("\n")}
-        
-        Return a JSON array of section identifiers that need improvement. For example:
-        ["summary", "skills", "experience-1"]
-        
-        IMPORTANT: Your response must be valid JSON. Do not include any text before or after the JSON array.
-      `
+      // Get the prompt template from the database
+      const promptTemplate = await this.getPromptTemplate("identify-sections-to-improve")
+
+      // Prepare experience and education sections for the prompt
+      const experienceSections = resumeData.experience
+        .map((exp) => `- experience-${exp.id}: ${exp.position} at ${exp.company}`)
+        .join("\n")
+
+      const educationSections = resumeData.education
+        .map((edu) => `- education-${edu.id}: ${edu.degree} from ${edu.institution}`)
+        .join("\n")
+
+      // Replace variables in the prompt template
+      const analysisPrompt = promptTemplate
+        .replace("{jobDescription}", jobDescription)
+        .replace("{matchAnalysis}", JSON.stringify(matchResult, null, 2))
+        .replace("{experienceSections}", experienceSections)
+        .replace("{educationSections}", educationSections)
 
       let response
       try {
@@ -385,30 +355,19 @@ export class OpenRouterAPI {
         }
       }
 
-      const improvementPrompt = `
-        You are an expert resume writer with years of experience helping job seekers optimize their resumes for specific positions.
-        
-        JOB DESCRIPTION:
-        ${jobDescription}
-        
-        SECTION TO IMPROVE: ${sectionType}
-        
-        CURRENT CONTENT:
-        ${currentContent}
-        
-        MATCH ANALYSIS:
-        ${JSON.stringify(matchResult, null, 2)}
-        
-        Your task is to improve this section to better match the job description. Make the following improvements:
-        1. Add relevant keywords from the job description
-        2. Highlight relevant qualifications and experiences
-        3. Use action verbs and quantifiable achievements
-        4. Maintain a professional tone
-        ${section === "skills" ? "5. Return a comma-separated list of skills" : ""}
-        
-        Return only the improved content without any additional text or explanation.
-        Do Not Use Bold or any text formatting, output as .txt not .md
-      `
+      // Get the prompt template from the database
+      const promptTemplate = await this.getPromptTemplate("improve-section")
+
+      // Special instruction for skills section
+      const skillsInstruction = section === "skills" ? "5. Return a comma-separated list of skills" : ""
+
+      // Replace variables in the prompt template
+      const improvementPrompt = promptTemplate
+        .replace("{jobDescription}", jobDescription)
+        .replace("{sectionType}", sectionType)
+        .replace("{currentContent}", currentContent)
+        .replace("{matchAnalysis}", JSON.stringify(matchResult, null, 2))
+        .replace("{skillsInstruction}", skillsInstruction)
 
       let response
       try {
@@ -443,6 +402,45 @@ export class OpenRouterAPI {
         current: "",
         improved: "",
       }
+    }
+  }
+
+  /**
+   * Get a prompt template from the database
+   */
+  private static async getPromptTemplate(promptId: string): Promise<string> {
+    try {
+      const prompt = await getPromptById(promptId)
+
+      if (prompt) {
+        return prompt.content
+      }
+
+      // If prompt not found, return a default
+      console.warn(`Prompt ${promptId} not found, using default`)
+
+      if (promptId === "analyze-job-match") {
+        return DEFAULT_PROMPTS["analyze-job-match"]
+      } else if (promptId === "identify-sections-to-improve") {
+        return DEFAULT_PROMPTS["identify-sections-to-improve"]
+      } else if (promptId === "improve-section") {
+        return DEFAULT_PROMPTS["improve-section"]
+      }
+
+      throw new Error(`No default prompt found for ${promptId}`)
+    } catch (error) {
+      console.error(`Error getting prompt template for ${promptId}:`, error)
+
+      // Return hardcoded defaults as fallback
+      if (promptId === "analyze-job-match") {
+        return DEFAULT_PROMPTS["analyze-job-match"]
+      } else if (promptId === "identify-sections-to-improve") {
+        return DEFAULT_PROMPTS["identify-sections-to-improve"]
+      } else if (promptId === "improve-section") {
+        return DEFAULT_PROMPTS["improve-section"]
+      }
+
+      throw error
     }
   }
 
@@ -504,4 +502,87 @@ export class OpenRouterAPI {
 
     return resumeText
   }
+}
+
+// Default prompts as fallback
+const DEFAULT_PROMPTS = {
+  "analyze-job-match": `
+You are an expert resume analyst and career coach. You need to analyze how well a resume matches a job description.
+
+RESUME:
+{resumeText}
+
+JOB DESCRIPTION:
+{jobDescription}
+
+Analyze the match between the resume and job description. Provide the following:
+1. Overall match percentage (0-100)
+2. List of skills mentioned in the job description that are missing from the resume
+3. Relevant experience the candidate has vs. what's missing
+4. Specific suggestions for improving sections of the resume to better match the job
+
+Format your response as a JSON object with the following structure:
+{
+  "overallMatch": number,
+  "missingSkills": string[],
+  "relevantExperience": {
+    "has": string[],
+    "missing": string[]
+  },
+  "improvementSuggestions": [
+    {
+      "section": string,
+      "current": string,
+      "improved": string
+    }
+  ]
+}
+
+IMPORTANT: Your response must be valid JSON. Do not include any text before or after the JSON object.
+Do not include markdown formatting or code blocks. Just return the raw JSON object.
+`,
+  "identify-sections-to-improve": `
+You are an expert resume analyst. Based on the job description and match analysis, identify which sections of the resume need improvement.
+
+JOB DESCRIPTION:
+{jobDescription}
+
+MATCH ANALYSIS:
+{matchAnalysis}
+
+RESUME SECTIONS:
+- summary: The professional summary
+- skills: The skills section
+{experienceSections}
+{educationSections}
+
+Return a JSON array of section identifiers that need improvement. For example:
+["summary", "skills", "experience-1"]
+
+IMPORTANT: Your response must be valid JSON. Do not include any text before or after the JSON array.
+`,
+  "improve-section": `
+You are an expert resume writer with years of experience helping job seekers optimize their resumes for specific positions.
+
+JOB DESCRIPTION:
+{jobDescription}
+
+SECTION TO IMPROVE: {sectionType}
+
+CURRENT CONTENT:
+{currentContent}
+
+MATCH ANALYSIS:
+{matchAnalysis}
+
+Your task is to improve this section to better match the job description. Make the following improvements:
+1. Add relevant keywords from the job description
+2. Highlight relevant qualifications and experiences
+3. Use action verbs and quantifiable achievements
+4. Maintain a professional tone
+{skillsInstruction}
+
+Return only the improved content without any additional text or explanation.
+Do Not Use Bold or any text formatting, output as .txt not .md
+`,
 }
