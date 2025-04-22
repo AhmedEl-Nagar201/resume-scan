@@ -21,6 +21,7 @@ import {
   AwardIcon,
   Globe,
   Loader2,
+  Briefcase,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -45,9 +46,10 @@ import {
   getMostRecentResume,
   autoSaveResume,
 } from "@/lib/resume-service"
+import Router from "next/navigation"
 
 // Define types for our resume data
-export type Link = {
+export type ResumeLink = {
   id: number
   name: string
   url: string
@@ -59,7 +61,7 @@ export type PersonalInfo = {
   phone: string
   address: string
   summary: string
-  links: Link[]
+  links: ResumeLink[]
 }
 
 export type Education = {
@@ -70,7 +72,7 @@ export type Education = {
   startDate: string
   endDate: string
   description: string
-  links: Link[]
+  links: ResumeLink[]
 }
 
 export type Experience = {
@@ -80,7 +82,7 @@ export type Experience = {
   startDate: string
   endDate: string
   description: string
-  links: Link[]
+  links: ResumeLink[]
 }
 
 export type Skill = {
@@ -100,7 +102,7 @@ export type Award = {
   issuer: string
   date: string
   description: string
-  links: Link[]
+  links: ResumeLink[]
 }
 
 export type ResumeData = {
@@ -164,8 +166,8 @@ const proficiencyLevels = ["Beginner", "Elementary", "Intermediate", "Advanced",
 
 // Link component for adding/editing links
 interface LinksEditorProps {
-  links: Link[]
-  onChange: (links: Link[]) => void
+  links: ResumeLink[]
+  onChange: (links: ResumeLink[]) => void
   addLinkLabel?: string
 }
 
@@ -362,7 +364,7 @@ export default function ResumeForm() {
   }
 
   // Handle personal links changes
-  const handlePersonalLinksChange = (links: Link[]) => {
+  const handlePersonalLinksChange = (links: ResumeLink[]) => {
     setResumeData((prev) => ({
       ...prev,
       personalInfo: {
@@ -381,7 +383,7 @@ export default function ResumeForm() {
   }
 
   // Handle education links changes
-  const handleEducationLinksChange = (educationId: number, links: Link[]) => {
+  const handleEducationLinksChange = (educationId: number, links: ResumeLink[]) => {
     setResumeData((prev) => ({
       ...prev,
       education: prev.education.map((edu) => (edu.id === educationId ? { ...edu, links } : edu)),
@@ -428,7 +430,7 @@ export default function ResumeForm() {
   }
 
   // Handle experience links changes
-  const handleExperienceLinksChange = (experienceId: number, links: Link[]) => {
+  const handleExperienceLinksChange = (experienceId: number, links: ResumeLink[]) => {
     setResumeData((prev) => ({
       ...prev,
       experience: prev.experience.map((exp) => (exp.id === experienceId ? { ...exp, links } : exp)),
@@ -528,7 +530,7 @@ export default function ResumeForm() {
   }
 
   // Handle award links changes
-  const handleAwardLinksChange = (awardId: number, links: Link[]) => {
+  const handleAwardLinksChange = (awardId: number, links: ResumeLink[]) => {
     setResumeData((prev) => ({
       ...prev,
       awards: prev.awards.map((award) => (award.id === awardId ? { ...award, links } : award)),
@@ -726,7 +728,6 @@ export default function ResumeForm() {
       toast({
         title: "Error",
         description: "Failed to export resume. Please try again.",
-        variant: "destructive",
       })
     }
   }
@@ -767,7 +768,6 @@ export default function ResumeForm() {
       toast({
         title: "Error",
         description: "Failed to import resume. Please try again.",
-        variant: "destructive",
       })
     }
   }
@@ -1338,6 +1338,12 @@ export default function ResumeForm() {
                 </>
               )}
             </Button>
+            <Router.Link href="/job-matcher">
+              <Button type="button" variant="outline" className="w-full sm:w-auto" size="lg">
+                <Briefcase className="h-5 w-5 mr-2" />
+                Analyze Resume
+              </Button>
+            </Router.Link>
           </div>
         </form>
       </TabsContent>

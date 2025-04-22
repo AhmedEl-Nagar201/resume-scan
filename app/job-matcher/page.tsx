@@ -13,6 +13,8 @@ import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import type { ResumeData } from "@/components/resume-form"
 import ProtectedRoute from "@/components/protected-route"
+// Add this import near the top of the file with the other imports
+import { saveResume, updateResume } from "@/lib/resume-service"
 
 interface MatchResult {
   overallMatch: number
@@ -533,7 +535,45 @@ export default function JobMatcher() {
                     Back to Analysis
                   </Button>
                   <Link href="/resume-builder">
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        // Save the improved resume to Firestore before navigating
+                        if (improvedResume) {
+                          const resumeName = localStorage.getItem("currentResumeName") || "Improved Resume"
+                          const resumeId = localStorage.getItem("currentResumeId") || null
+
+                          // Update localStorage with the current resume data
+                          localStorage.setItem("autoSavedResume", JSON.stringify(improvedResume))
+
+                          // If we have a resumeId, update the existing resume in Firestore
+                          if (resumeId) {
+                            updateResume(resumeId, improvedResume, resumeName).catch((error) => {
+                              console.error("Error updating resume in Firestore:", error)
+                              toast({
+                                title: "Error",
+                                description: "Failed to save improved resume to Firestore. Changes are saved locally.",
+                                variant: "destructive",
+                              })
+                            })
+                          } else {
+                            // Otherwise, create a new resume in Firestore
+                            saveResume(improvedResume, resumeName)
+                              .then((newResumeId) => {
+                                localStorage.setItem("currentResumeId", newResumeId)
+                              })
+                              .catch((error) => {
+                                console.error("Error saving resume to Firestore:", error)
+                                toast({
+                                  title: "Error",
+                                  description:
+                                    "Failed to save improved resume to Firestore. Changes are saved locally.",
+                                  variant: "destructive",
+                                })
+                              })
+                          }
+                        }
+                      }}
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       View Updated Resume
                     </Button>
