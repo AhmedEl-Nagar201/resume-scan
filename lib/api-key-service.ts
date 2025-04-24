@@ -292,6 +292,8 @@ export async function getAllApiKeys(): Promise<ApiKey[]> {
 // Validate API key for a specific domain and feature
 export async function validateApiKey(keyString: string, domain: string, feature: string): Promise<boolean> {
   try {
+    console.log(`Validating API key for domain: ${domain}, feature: ${feature}`)
+
     const apiKey = await getApiKeyByKey(keyString)
 
     if (!apiKey) {
@@ -305,14 +307,34 @@ export async function validateApiKey(keyString: string, domain: string, feature:
       return false
     }
 
-    // Special case for local testing
-    const isLocalhost = domain === "localhost" || domain === "127.0.0.1" || domain.includes("localhost:")
+    // Special case for local testing - accept any local domain
+    const localDomains = ["localhost", "127.0.0.1", "::1"]
+    const isLocalDomain =
+      localDomains.includes(domain) ||
+      domain.includes("localhost:") ||
+      domain.includes("127.0.0.1:") ||
+      domain === "unknown" // Sometimes referrer is unknown in local testing
+
+    const isApiKeyLocalDomain =
+      localDomains.includes(apiKey.domain) || apiKey.domain.includes("localhost:") || apiKey.domain === "*"
 
     // For local testing, be more permissive with domain validation
-    if (isLocalhost) {
-      console.log("Local testing detected, bypassing strict domain validation")
-      // Still check if the feature is allowed
-      return apiKey.allowedFeatures.includes(feature) || apiKey.allowedFeatures.includes("*")
+    if (isLocalDomain) {
+      console.log("Local testing detected. API key domain:", apiKey.domain)
+
+      // If we're testing locally and the API key is for a local domain or wildcard, allow it
+      if (isApiKeyLocalDomain) {
+        console.log("Local domain match for local testing")
+
+        // Still check if the feature is allowed
+        const featureAllowed = apiKey.allowedFeatures.includes(feature) || apiKey.allowedFeatures.includes("*")
+
+        if (!featureAllowed) {
+          console.log(`Feature not allowed: '${feature}' not in [${apiKey.allowedFeatures.join(", ")}]`)
+        }
+
+        return featureAllowed
+      }
     }
 
     // Regular domain validation for non-localhost
@@ -331,6 +353,7 @@ export async function validateApiKey(keyString: string, domain: string, feature:
       return false
     }
 
+    console.log("API key validation successful")
     return true
   } catch (error) {
     console.error("Error validating API key:", error)

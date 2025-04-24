@@ -31,11 +31,24 @@ export default function EmbeddedResumeBuilder() {
         }
 
         // Get the parent domain
-        const parentDomain = window.location.ancestorOrigins?.[0]
-          ? new URL(window.location.ancestorOrigins[0]).hostname
-          : document.referrer
-            ? new URL(document.referrer).hostname
-            : "unknown"
+        let parentDomain = "unknown"
+
+        try {
+          if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+            parentDomain = new URL(window.location.ancestorOrigins[0]).hostname
+          } else if (document.referrer) {
+            parentDomain = new URL(document.referrer).hostname
+          }
+
+          // For local testing
+          if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            parentDomain = "localhost"
+          }
+        } catch (e) {
+          console.error("Error getting parent domain:", e)
+        }
+
+        console.log("Validating with domain:", parentDomain)
 
         const response = await fetch("/api/embed/validate", {
           method: "POST",
@@ -50,11 +63,12 @@ export default function EmbeddedResumeBuilder() {
         })
 
         const data = await response.json()
+        console.log("Validation response:", data)
 
         if (data.valid) {
           setIsValid(true)
         } else {
-          setError(data.error || "Invalid API key")
+          setError(data.error || `Invalid API key for domain: ${parentDomain}`)
         }
       } catch (error) {
         console.error("Error validating API key:", error)
