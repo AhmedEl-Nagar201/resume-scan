@@ -60,8 +60,7 @@
     "zod": "^3.24.1",
     "html2canvas": "latest",
     "jspdf": "latest",
-    "firebase": "latest",
-    "nanoid": "latest"
+    "firebase": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

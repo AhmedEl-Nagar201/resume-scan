@@ -89,15 +89,6 @@ export function Navbar() {
           >
             Job Matcher
           </Link>
-          <Link
-            href="/api-keys"
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-primary",
-              pathname === "/api-keys" ? "text-foreground" : "text-muted-foreground",
-            )}
-          >
-            API Keys
-          </Link>
 
           {!loading && (
             <>
@@ -187,16 +178,6 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(false)}
             >
               Job Matcher
-            </Link>
-            <Link
-              href="/api-keys"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary p-2 rounded-md",
-                pathname === "/api-keys" ? "bg-muted" : "",
-              )}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              API Keys
             </Link>
 
             {!loading && (
