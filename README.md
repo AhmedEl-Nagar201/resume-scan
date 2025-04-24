@@ -13,17 +13,21 @@ Resume Scan is a web application that allows users to build, analyze, and optimi
 
 ## Tech Stack
 
-- **Frontend**: React, Next.js, Tailwind CSS
-- **Backend**: Firebase (Firestore, Authentication)
-- **UI Components**: Radix UI, Lucide Icons
-- **State Management**: React Context API
-- **Other Libraries**: Zod, React Hook Form, Recharts, Embla Carousel
+- **Frontend**: [React](https://reactjs.org/), [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
+- **Backend**: [Firebase](https://firebase.google.com/) (Firestore, Authentication)
+- **UI Components**: [Shadcn UI](https://shadcn.dev/)
+- **State Management**: [React Context API](https://react.dev/learn/context)
+- **Other Libraries**:
+    - [Zod](https://zod.dev/) for schema validation
+    - [React Hook Form](https://react-hook-form.com/) for form handling
+    - [Recharts](https://recharts.org/en-US/) for data visualization
+    - [Embla Carousel](https://www.embla-carousel.com/) for carousel functionality
 
 ## Installation
 
 ### Prerequisites
 
-- Node.js (v18 or later)
+- [Node.js](https://nodejs.org/) (v18 or later)
 - npm or yarn
 - Firebase project with Firestore and Authentication enabled
 
@@ -31,36 +35,36 @@ Resume Scan is a web application that allows users to build, analyze, and optimi
 
 1. Clone the repository:
 
-    ```bash
-    git clone https://github.com/your-username/resume-scan.git
-    cd resume-scan
-    ```
+        ```bash
+        git clone https://github.com/your-username/resume-scan.git
+        cd resume-scan
+        ```
 
 2. Install dependencies:
 
-    ```bash
-    npm install
-    ```
+        ```bash
+        npm install
+        ```
 
 3. Set up environment variables:
 
-    Create a `.env.local` file in the root directory and add the following:
+        Create a `.env.local` file in the root directory and add the following:
 
-    ```env
-    NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
-    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
-    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
-    NEXT_PUBLIC_FIREBASE_APP_ID=your-firebase-app-id
-    OPENROUTER_API_KEY=your-openrouter-api-key
-    ```
+        ```env
+        NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+        NEXT_PUBLIC_FIREBASE_APP_ID=your-firebase-app-id
+        OPENROUTER_API_KEY=your-openrouter-api-key
+        ```
 
 4. Start the development server:
 
-    ```bash
-    npm run dev
-    ```
+        ```bash
+        npm run dev
+        ```
 
 5. Open the application in your browser at `http://localhost:3000`.
 
