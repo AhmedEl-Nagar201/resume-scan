@@ -295,25 +295,39 @@ export async function validateApiKey(keyString: string, domain: string, feature:
     const apiKey = await getApiKeyByKey(keyString)
 
     if (!apiKey) {
+      console.log("API key not found:", keyString)
       return false
     }
 
     // Check if the key is active
     if (!apiKey.isActive) {
+      console.log("API key is not active")
       return false
     }
 
-    // Check if the domain matches or if the API key allows any domain (*)
+    // Special case for local testing
+    const isLocalhost = domain === "localhost" || domain === "127.0.0.1" || domain.includes("localhost:")
+
+    // For local testing, be more permissive with domain validation
+    if (isLocalhost) {
+      console.log("Local testing detected, bypassing strict domain validation")
+      // Still check if the feature is allowed
+      return apiKey.allowedFeatures.includes(feature) || apiKey.allowedFeatures.includes("*")
+    }
+
+    // Regular domain validation for non-localhost
     if (apiKey.domain !== "*" && apiKey.domain !== domain) {
       // Check if the domain is a subdomain of the allowed domain
       const isSubdomain = domain.endsWith(`.${apiKey.domain}`)
       if (!isSubdomain) {
+        console.log(`Domain mismatch: Key allows '${apiKey.domain}', request from '${domain}'`)
         return false
       }
     }
 
     // Check if the feature is allowed
     if (!apiKey.allowedFeatures.includes(feature) && !apiKey.allowedFeatures.includes("*")) {
+      console.log(`Feature not allowed: '${feature}' not in [${apiKey.allowedFeatures.join(", ")}]`)
       return false
     }
 

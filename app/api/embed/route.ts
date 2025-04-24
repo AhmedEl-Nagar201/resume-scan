@@ -22,6 +22,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // For local testing, check if the request is coming from localhost
+    const host = request.headers.get("host") || ""
+    if (host.includes("localhost") || host.includes("127.0.0.1")) {
+      domain = "localhost"
+      console.log("Local testing detected, using domain:", domain)
+    }
+
     // Validate the API key
     if (!apiKey) {
       return new NextResponse("API key is required", { status: 400 })
@@ -30,7 +37,7 @@ export async function GET(request: NextRequest) {
     const isValid = await validateApiKey(apiKey, domain, feature)
 
     if (!isValid) {
-      return new NextResponse("Invalid API key for this domain or feature", { status: 403 })
+      return new NextResponse(`Invalid API key for this domain (${domain}) or feature (${feature})`, { status: 403 })
     }
 
     // Generate the embedded widget HTML
@@ -44,7 +51,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error serving embedded widget:", error)
-    return new NextResponse("Error serving embedded widget", { status: 500 })
+    return new NextResponse(`Error serving embedded widget: ${error.message}`, { status: 500 })
   }
 }
 
