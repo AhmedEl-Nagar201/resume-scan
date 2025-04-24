@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { FileText, Briefcase, CheckCircle, ArrowRight, Star } from "lucide-react"
+import { FileText, Briefcase, CheckCircle, ArrowRight, Star, Code } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -121,6 +121,61 @@ export default function LandingPage() {
                   Continuous improvements
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* API Integration Section */}
+      <section className="py-12 md:py-24">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Embed on Your Website</h2>
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                Add Resume Scan's powerful tools to your own website with our simple embed API
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            <div className="flex flex-col space-y-4">
+              <h3 className="text-xl font-bold">Easy Integration</h3>
+              <p className="text-muted-foreground">
+                Add our resume builder and job matcher to your website with just a few lines of code. Perfect for career
+                sites, job boards, and educational platforms.
+              </p>
+              <div className="bg-muted p-4 rounded-md">
+                <pre className="text-sm overflow-x-auto">
+                  {`<iframe 
+  src="https://resume-scan.vercel.app/api/embed?key=YOUR_API_KEY" 
+  style="width: 100%; height: 800px; border: none;" 
+></iframe>`}
+                </pre>
+              </div>
+              <Link href="/api-keys">
+                <Button variant="outline" className="mt-4">
+                  <Code className="mr-2 h-4 w-4" />
+                  Get Your API Key
+                </Button>
+              </Link>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="relative w-full max-w-md aspect-video bg-muted rounded-lg overflow-hidden shadow-lg">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                    <div className="text-center">
+                      <h4 className="text-lg font-semibold mb-2">Resume Builder Widget</h4>
+                      <p className="text-sm text-muted-foreground mb-4">Embedded on your website</p>
+                      <div className="flex justify-center">
+                        <Button size="sm">
+                          <FileText className="mr-2 h-4 w-4" />
+                          Create Resume
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
