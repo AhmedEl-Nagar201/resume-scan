@@ -31,39 +31,49 @@ Resume Scan is a web application that allows users to build, analyze, and optimi
 
 1. Clone the repository:
 
-   ```bash
-   git clone https://github.com/your-username/resume-scan.git
-   cd resume-scan
+    ```bash
+    git clone https://github.com/your-username/resume-scan.git
+    cd resume-scan
+    ```
 
-2. install dependencies
-  ```bash
+2. Install dependencies:
+
+    ```bash
     npm install
-```
+    ```
+
 3. Set up environment variables:
 
-Create a .env.local file in the root directory and add the following:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-firebase-app-id
-OPENROUTER_API_KEY=your-openrouter-api-key
-```
-4. Start the development server:
-```bash
-npm run dev
-```
-Open the application in your browser at http://localhost:3000.
+    Create a `.env.local` file in the root directory and add the following:
 
-Scripts
-npm run dev: Start the development server.
-npm run build: Build the application for production.
-npm run start: Start the production server.
-npm run lint: Run linting checks.
-Folder Structure
-```
+    ```env
+    NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+    NEXT_PUBLIC_FIREBASE_APP_ID=your-firebase-app-id
+    OPENROUTER_API_KEY=your-openrouter-api-key
+    ```
+
+4. Start the development server:
+
+    ```bash
+    npm run dev
+    ```
+
+5. Open the application in your browser at `http://localhost:3000`.
+
+## Scripts
+
+- `npm run dev`: Start the development server.
+- `npm run build`: Build the application for production.
+- `npm run start`: Start the production server.
+- `npm run lint`: Run linting checks.
+
+## Folder Structure
+
+```plaintext
 resume-scan/
 ├── app/                     # Next.js app directory
 │   ├── admin/               # Admin dashboard
@@ -73,54 +83,66 @@ resume-scan/
 │   ├── profile/             # User profile page
 │   ├── resume-builder/      # Resume builder feature
 │   ├── signup/              # Signup page
-│   ├──            # Root layout
-│   ├──              # Landing page
-│   └──           # Global styles
+│   ├── layout.tsx           # Root layout
+│   ├── page.tsx             # Landing page
+│   └── globals.css          # Global styles
 ├── components/              # Reusable UI components
 │   ├── ui/                  # UI-specific components
-│   ├──            # Navigation bar
-│   ├──       # Resume form
-│   ├──    # Resume preview
-│   └──  # Firebase configuration checker
+│   ├── navbar.tsx           # Navigation bar
+│   ├── resume-form.tsx      # Resume form
+│   ├── resume-preview.tsx   # Resume preview
+│   └── firebase-config-checker.tsx # Firebase configuration checker
 ├── contexts/                # React context providers
-│   └──      # Authentication context
+│   └── auth-context.tsx     # Authentication context
 ├── lib/                     # Utility libraries
-│   ├──           # Firebase initialization
-│   └──     # Resume-related services
+│   ├── firebase.ts          # Firebase initialization
+│   └── resume-service.ts    # Resume-related services
 ├── public/                  # Static assets
 ├── .env.local.example       # Example environment variables
-├──              # Project dependencies and scripts
-└──                 # Project documentation
+├── package.json             # Project dependencies and scripts
+└── README.md                # Project documentation
 ```
-Firebase Setup
-Go to the Firebase Console.
-Create a new project.
-Enable Firestore and Authentication in the project.
-Add your Firebase configuration to the .env.local file.
-Deployment
-This project is optimized for deployment on Vercel. Follow these steps:
 
-Push your code to a GitHub repository.
-Connect your repository to Vercel.
-Add the environment variables in the Vercel dashboard.
-Deploy the application.
-Contributing
+## Firebase Setup
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/).
+2. Create a new project.
+3. Enable Firestore and Authentication in the project.
+4. Add your Firebase configuration to the `.env.local` file.
+
+## Deployment
+
+This project is optimized for deployment on [Vercel](https://vercel.com/). Follow these steps:
+
+1. Push your code to a GitHub repository.
+2. Connect your repository to Vercel.
+3. Add the environment variables in the Vercel dashboard.
+4. Deploy the application.
+
+## Contributing
+
 Contributions are welcome! Please follow these steps:
 
-Fork the repository.
-Create a new branch for your feature or bug fix.
-Commit your changes and push the branch.
-Open a pull request.
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes and push the branch.
+4. Open a pull request.
 
-Acknowledgments
-Firebase for backend services.
-Radix UI for accessible UI components.
-Lucide Icons for beautiful icons.
-Next.js for the React framework.
-Contact
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Firebase](https://firebase.google.com/) for backend services.
+- [Radix UI](https://www.radix-ui.com/) for accessible UI components.
+- [Lucide Icons](https://lucide.dev/) for beautiful icons.
+- [Next.js](https://nextjs.org/) for the React framework.
+
+## Contact
+
 For any inquiries or support, please contact:
 
-Author: Ahmed El Nagar
-Email: [ahmedelnagar@example.com](<vscode_annotation details='%5B%7B%22title%22%3A%22hardcoded-credentials%22%2C%22description%22%3A%22Embedding%20credentials%20in%20source%20code%20risks%20unauthorized%20access%22%7D%5D'>mailto</vscode_annotation>:ahmedelnagar@example.com)
+- **Author**: Ahmed El Nagar
+- **Email**: ahmedelnagar@example.com
+- **WhatsApp**: [Contact on WhatsApp](https://wa.me/201067212579)
