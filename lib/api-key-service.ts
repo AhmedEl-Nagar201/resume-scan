@@ -360,3 +360,115 @@ export async function validateApiKey(keyString: string, domain: string, feature:
     return false
   }
 }
+
+// Debug function to help troubleshoot API key validation issues
+export async function debugApiKey(
+  keyString: string,
+  domain: string,
+  feature: string,
+): Promise<{
+  keyFound: boolean
+  keyDetails?: Partial<ApiKey>
+  domainMatch: boolean
+  featureMatch: boolean
+  isLocalhost: boolean
+  overallResult: boolean
+}> {
+  try {
+    console.log(`[DEBUG] Validating API key for domain: ${domain}, feature: ${feature}`)
+
+    // Get the API key
+    const apiKey = await getApiKeyByKey(keyString)
+
+    if (!apiKey) {
+      console.log("[DEBUG] API key not found")
+      return {
+        keyFound: false,
+        domainMatch: false,
+        featureMatch: false,
+        isLocalhost: false,
+        overallResult: false,
+      }
+    }
+
+    // Check if the key is active
+    if (!apiKey.isActive) {
+      console.log("[DEBUG] API key is not active")
+      return {
+        keyFound: true,
+        keyDetails: {
+          domain: apiKey.domain,
+          allowedFeatures: apiKey.allowedFeatures,
+          isActive: false,
+        },
+        domainMatch: false,
+        featureMatch: false,
+        isLocalhost: false,
+        overallResult: false,
+      }
+    }
+
+    // Special case for local testing
+    const localDomains = ["localhost", "127.0.0.1", "::1"]
+    const isLocalDomain =
+      localDomains.includes(domain) ||
+      domain.includes("localhost:") ||
+      domain.includes("127.0.0.1:") ||
+      domain === "unknown"
+
+    const isApiKeyLocalDomain =
+      localDomains.includes(apiKey.domain) || apiKey.domain.includes("localhost:") || apiKey.domain === "*"
+
+    // Domain match logic
+    let domainMatch = false
+
+    if (isLocalDomain) {
+      // For local testing, be more permissive
+      domainMatch = isApiKeyLocalDomain || apiKey.domain === "*"
+      console.log(`[DEBUG] Local testing detected. API key domain: ${apiKey.domain}, Domain match: ${domainMatch}`)
+    } else if (apiKey.domain === "*") {
+      // Wildcard domain matches everything
+      domainMatch = true
+      console.log("[DEBUG] Wildcard domain match")
+    } else if (apiKey.domain === domain) {
+      // Exact domain match
+      domainMatch = true
+      console.log("[DEBUG] Exact domain match")
+    } else {
+      // Check for subdomain match
+      const isSubdomain = domain.endsWith(`.${apiKey.domain}`)
+      domainMatch = isSubdomain
+      console.log(`[DEBUG] Subdomain check: ${isSubdomain}`)
+    }
+
+    // Feature match logic
+    const featureMatch = apiKey.allowedFeatures.includes(feature) || apiKey.allowedFeatures.includes("*")
+
+    console.log(`[DEBUG] Feature match: ${featureMatch}, Allowed features: ${apiKey.allowedFeatures.join(", ")}`)
+
+    // Overall result
+    const overallResult = domainMatch && featureMatch
+
+    return {
+      keyFound: true,
+      keyDetails: {
+        domain: apiKey.domain,
+        allowedFeatures: apiKey.allowedFeatures,
+        isActive: apiKey.isActive,
+      },
+      domainMatch,
+      featureMatch,
+      isLocalhost: isLocalDomain,
+      overallResult,
+    }
+  } catch (error) {
+    console.error("[DEBUG] Error in debug validation:", error)
+    return {
+      keyFound: false,
+      domainMatch: false,
+      featureMatch: false,
+      isLocalhost: false,
+      overallResult: false,
+    }
+  }
+}
