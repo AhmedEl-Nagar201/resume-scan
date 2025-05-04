@@ -26,8 +26,6 @@ import {
   Upload,
   Download,
   LinkIcon,
-  AwardIcon,
-  Globe,
   Loader2,
   Briefcase,
 } from "lucide-react"
@@ -1029,10 +1027,6 @@ export default function ResumeForm() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Education</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={addEducation}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add Education
-              </Button>
             </CardHeader>
             <CardContent className="space-y-6">
               {education.map((edu) => (
@@ -1103,17 +1097,6 @@ export default function ResumeForm() {
                       placeholder="Relevant coursework, achievements, etc."
                     />
                   </div>
-                  {education.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-4 right-4"
-                      onClick={() => removeEducation(edu.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               ))}
             </CardContent>
@@ -1123,10 +1106,6 @@ export default function ResumeForm() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Work Experience</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={addExperience}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add Experience
-              </Button>
             </CardHeader>
             <CardContent className="space-y-6">
               {experience.map((exp) => (
@@ -1190,17 +1169,6 @@ export default function ResumeForm() {
                       className="min-h-[100px]"
                     />
                   </div>
-                  {experience.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-4 right-4"
-                      onClick={() => removeExperience(exp.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               ))}
             </CardContent>
@@ -1210,10 +1178,6 @@ export default function ResumeForm() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Skills</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={addSkill}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add Skill
-              </Button>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1224,11 +1188,6 @@ export default function ResumeForm() {
                       onChange={(e) => handleSkillChange(skill.id, e.target.value)}
                       placeholder="e.g., JavaScript, Project Management"
                     />
-                    {skills.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeSkill(skill.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    )}
                   </div>
                 ))}
               </div>
@@ -1239,11 +1198,6 @@ export default function ResumeForm() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Languages</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={addLanguage}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                <Globe className="h-4 w-4 mr-2" />
-                Add Language
-              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {languages.map((language) => (
@@ -1272,11 +1226,6 @@ export default function ResumeForm() {
                       </SelectContent>
                     </Select>
                   </div>
-                  {languages.length > 1 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeLanguage(language.id)}>
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  )}
                 </div>
               ))}
             </CardContent>
@@ -1286,11 +1235,6 @@ export default function ResumeForm() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Awards & Certifications</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={addAward}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                <AwardIcon className="h-4 w-4 mr-2" />
-                Add Award
-              </Button>
             </CardHeader>
             <CardContent className="space-y-6">
               {awards.map((award) => (
@@ -1343,17 +1287,6 @@ export default function ResumeForm() {
                       placeholder="Brief description of the award or certification"
                     />
                   </div>
-                  {awards.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-4 right-4"
-                      onClick={() => removeAward(award.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               ))}
             </CardContent>

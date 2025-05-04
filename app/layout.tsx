@@ -69,19 +69,6 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <ThemeToggle />
               <Toaster />
-
-              {/* Fixed footer */}
-              <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-200 py-2 px-4 text-center text-sm text-gray-600">
-                Made with ❤️ by{" "}
-                <Link
-                  href="https://wa.me/201067212579"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary font-medium hover:underline"
-                >
-                  Ahmed El Nagar
-                </Link>
-              </footer>
             </div>
           </ThemeProvider>
         </AuthProvider>
