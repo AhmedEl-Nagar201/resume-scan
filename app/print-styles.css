@@ -1,0 +1,42 @@
+@media print {
+  /* Hide unnecessary elements when printing */
+  body > *:not([data-pdf-exportable="true"]) {
+    display: none !important;
+  }
+
+  /* Ensure the resume takes up the full page */
+  [data-pdf-exportable="true"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: white !important;
+    color: black !important;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure text is black for better printing */
+  [data-pdf-exportable="true"] * {
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Preserve backgrounds and borders */
+  [data-pdf-exportable="true"] [style*="background-color"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure page breaks don't occur in the middle of sections */
+  [data-pdf-exportable="true"] > div {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure links are underlined for clarity */
+  [data-pdf-exportable="true"] a {
+    text-decoration: underline !important;
+  }
+}

@@ -2,6 +2,10 @@
 
 import Link from "next/link"
 
+import { CardDescription } from "@/components/ui/card"
+
+import { DialogTrigger } from "@/components/ui/dialog"
+
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
@@ -39,7 +43,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   saveResume,
@@ -50,6 +53,7 @@ import {
   getMostRecentResume,
   autoSaveResume,
 } from "@/lib/resume-service"
+import { ResumeStyleSelector, type ResumeStyle } from "./resume-style-selector"
 
 // Define types for our resume data
 export type ResumeLink = {
@@ -115,6 +119,7 @@ export type ResumeData = {
   skills: Skill[]
   languages: Language[]
   awards: Award[]
+  resumeStyle: ResumeStyle
 }
 
 // Initial empty resume data
@@ -162,6 +167,11 @@ const initialResumeData: ResumeData = {
       links: [],
     },
   ],
+  resumeStyle: {
+    font: "font-sans",
+    layout: "classic",
+    colorScheme: "default",
+  },
 }
 
 // Proficiency levels for languages
@@ -226,7 +236,7 @@ function LinksEditor({ links, onChange, addLinkLabel = "Add Link" }: LinksEditor
   )
 }
 
-export interface Link
+export interface NextLink
   extends React.ForwardRefExoticComponent<Omit<LinkProps, "ref"> & React.RefAttributes<HTMLAnchorElement>> {}
 
 export default function ResumeForm() {
@@ -325,6 +335,11 @@ export default function ResumeForm() {
           skills: parsedResume.skills || initialResumeData.skills,
           languages: parsedResume.languages || initialResumeData.languages,
           awards: parsedResume.awards || initialResumeData.awards,
+          resumeStyle: parsedResume.resumeStyle || {
+            font: "font-sans",
+            layout: "classic",
+            colorScheme: "default",
+          },
         }
 
         setResumeData(validatedResume)
@@ -573,6 +588,17 @@ export default function ResumeForm() {
     }
   }
 
+  const handleStyleChange = (resumeStyle: ResumeStyle) => {
+    setResumeData((prev) => ({
+      ...prev,
+      resumeStyle: resumeStyle || {
+        font: "font-sans",
+        layout: "classic",
+        colorScheme: "default",
+      },
+    }))
+  }
+
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -796,6 +822,7 @@ export default function ResumeForm() {
     skills,
     languages,
     awards,
+    resumeStyle: resumeData.resumeStyle,
   }
 
   return (
@@ -916,7 +943,7 @@ export default function ResumeForm() {
 
           <Button variant="outline" size="sm" onClick={generatePDF} disabled={isGeneratingPDF}>
             <FileDown className="h-4 w-4 mr-2" />
-            {isGeneratingPDF ? "Generating..." : "Export PDF"}
+            {isGeneratingPDF ? "Generating PDF..." : "Export as PDF"}
           </Button>
         </div>
       </div>
@@ -1329,6 +1356,23 @@ export default function ResumeForm() {
                   )}
                 </div>
               ))}
+            </CardContent>
+          </Card>
+
+          {/* Resume Style Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Resume Style</CardTitle>
+              <CardDescription>Customize the appearance of your resume</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Choose Font & Style</Label>
+                <ResumeStyleSelector value={resumeData.resumeStyle} onChange={handleStyleChange} />
+                <p className="text-sm text-muted-foreground mt-2">
+                  All styles are ATS-compatible to ensure your resume is properly parsed by applicant tracking systems.
+                </p>
+              </div>
             </CardContent>
           </Card>
 

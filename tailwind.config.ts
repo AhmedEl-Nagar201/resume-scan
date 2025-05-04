@@ -19,6 +19,13 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Arial", "sans-serif"],
+        serif: ["Times New Roman", "serif"],
+        inter: ["Calibri", "sans-serif"],
+        georgia: ["Georgia", "serif"],
+        helvetica: ["Helvetica", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
