@@ -30,7 +30,7 @@ export default function HeroAnimation() {
               <div className="pt-8 px-4 pb-4">
                 <div className="w-full h-full bg-muted/30 rounded-md overflow-hidden">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
+                    src="https://academyflorida.com/wp-content/uploads/2019/02/resume-600x338-600x338.jpg"
                     alt="Resume Builder Interface"
                     width={600}
                     height={400}
